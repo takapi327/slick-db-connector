@@ -1,9 +1,12 @@
 import sbt._
 
 name         := "slick-db-connector"
-organization := ""
+organization := "io.github.takapi327"
 
-ThisBuild / scalaVersion := "3.0.0"
+ThisBuild / organizationName := "Takahiko Tominaga"
+ThisBuild / startYear        := Some(2021)
+
+ThisBuild / scalaVersion := "2.13.3"
 
 version := "1.0.0"
 
@@ -19,4 +22,9 @@ scalacOptions ++= Seq(
   "-language:implicitConversions",
   "-Ywarn-dead-code",
   "-Ymacro-annotations"
+)
+
+libraryDependencies ++= Seq(
+  "mysql"               % "mysql-connector-java" % "5.1.48",
+  "com.typesafe.slick" %% "slick"                % "3.3.3",
 )
