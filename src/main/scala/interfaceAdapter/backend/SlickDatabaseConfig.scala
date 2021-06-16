@@ -1,4 +1,4 @@
-package backend
+package interfaceAdapter.backend
 
 import slick.jdbc.JdbcBackend.Database
 
