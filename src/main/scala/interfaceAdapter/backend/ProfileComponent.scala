@@ -2,6 +2,8 @@ package interfaceAdapter.backend
 
 import slick.jdbc.JdbcProfile
 
+import scala.concurrent.Future
+
 trait ProfileComponent[P <: JdbcProfile] {
   val profile: P
 }
@@ -10,14 +12,27 @@ package object persistence {
 
   object onMySQL {
     implicit lazy val profile = slick.jdbc.MySQLProfile
-    object Repository extends Repository
+    object UserRepository extends UserRepository
   }
 }
 
-case class Repository[P <: JdbcProfile](implicit val profile: P)
-  extends ProfileComponent[P] {
+case class UserRepository[P <: JdbcProfile]()(implicit val profile: P)
+  extends SlickResourceProvider[P] {
 
   import profile.api._
+
+  def get(id: Long): Future[Option[Int]] = {
+  }
+}
+
+trait SlickResourceProvider[P <: JdbcProfile] {
+  implicit val profile: P
+
+  object UserTable extends UserTable
+
+  lazy val allTables = Seq(
+    UserTable
+  )
 }
 
 trait BasicTable[P <: JdbcProfile] { this: ProfileComponent[P] =>
@@ -30,9 +45,13 @@ trait BasicTable[P <: JdbcProfile] { this: ProfileComponent[P] =>
   ) extends Table[M](tag, tableName)
 }
 
-case class Test()
+case class User(
+  id:        Option[Long],
+  firstName: String,
+  lastName:  String
+)
 
-case class TestTable[P <: JdbcProfile](implicit val profile: P)
+case class UserTable[P <: JdbcProfile]()(implicit val profile: P)
   extends ProfileComponent[P]
      with BasicTable[P] {
 
@@ -41,8 +60,23 @@ case class TestTable[P <: JdbcProfile](implicit val profile: P)
   class Query extends TableQuery(new Table(_)) {}
   lazy val query = new Query
 
-  class Table(tag: Tag) extends SlickTable[Test](tag, "test") {
+  class Table(tag: Tag) extends SlickTable[User](tag, "user") {
 
-    def id = column[Long] ("id", O.PrimaryKey, O.AutoInc)
+    def id        = column[Long]   ("id", O.PrimaryKey, O.AutoInc)
+    def firstName = column[String] ("first_name")
+    def lastName  = column[String] ("last_name")
+
+    type TableElementTuple = (
+      Option[Long], String, String
+    )
+
+    def * = (id.?, firstName, lastName) .<> (
+      (x: TableElementTuple) => User(
+        x._1, x._2, x._3
+      ),
+      (x: User) => User.unapply(x).map {t => {
+        t
+      }}
+    )
   }
 }
