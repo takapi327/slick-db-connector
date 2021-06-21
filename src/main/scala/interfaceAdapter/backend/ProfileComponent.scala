@@ -16,8 +16,12 @@ package object persistence {
   }
 }
 
+trait BaseRepository extends SlickDatabaseConfig {
+  implicit val ec = scala.concurrent.ExecutionContext.global
+}
+
 case class UserRepository[P <: JdbcProfile]()(implicit val profile: P)
-  extends SlickDatabaseConfig
+  extends BaseRepository
      with SlickResourceProvider[P] {
 
   import profile.api._
@@ -39,16 +43,6 @@ trait SlickResourceProvider[P <: JdbcProfile] {
   lazy val allTables = Seq(
     UserTable
   )
-}
-
-trait BasicTable[P <: JdbcProfile] { this: ProfileComponent[P] =>
-
-  import profile.api._
-
-  abstract class SlickTable[M](
-    tag:       Tag,
-    tableName: String
-  ) extends Table[M](tag, tableName)
 }
 
 case class User(
