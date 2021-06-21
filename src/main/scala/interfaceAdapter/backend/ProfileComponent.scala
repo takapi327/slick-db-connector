@@ -4,6 +4,8 @@ import slick.jdbc.JdbcProfile
 
 import scala.concurrent.Future
 
+import domain.model.User
+
 trait ProfileComponent[P <: JdbcProfile] {
   val profile: P
 }
@@ -44,12 +46,6 @@ trait SlickResourceProvider[P <: JdbcProfile] {
     UserTable
   )
 }
-
-case class User(
-  id:        Option[Long],
-  firstName: String,
-  lastName:  String
-)
 
 case class UserTable[P <: JdbcProfile]()(implicit val profile: P)
   extends ProfileComponent[P]
