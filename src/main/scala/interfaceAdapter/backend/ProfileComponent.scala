@@ -17,11 +17,17 @@ package object persistence {
 }
 
 case class UserRepository[P <: JdbcProfile]()(implicit val profile: P)
-  extends SlickResourceProvider[P] {
+  extends SlickDatabaseConfig
+     with SlickResourceProvider[P] {
 
   import profile.api._
 
-  def get(id: Long): Future[Option[Int]] = {
+  val userTable = UserTable.query
+
+  def get(id: Long): Future[Option[User]] = {
+    db.run {
+      userTable.filter(_.id === id).result.headOption
+    }
   }
 }
 
