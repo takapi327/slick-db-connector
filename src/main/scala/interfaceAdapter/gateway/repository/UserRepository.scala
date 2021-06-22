@@ -10,7 +10,7 @@ import interfaceAdapter.gateway.dao.SlickResourceProvider
 
 case class UserRepository[P <: JdbcProfile]()(implicit val profile: P)
   extends BasicRepository
-    with SlickResourceProvider[P] {
+     with SlickResourceProvider[P] {
 
   import profile.api._
 
@@ -18,7 +18,7 @@ case class UserRepository[P <: JdbcProfile]()(implicit val profile: P)
 
   def get(id: Long): Future[Option[User]] = {
     db.run {
-      userTable.filter(_.id === id).result.headOption
+      userTable.uniqueId(id).result.headOption
     }
   }
 }

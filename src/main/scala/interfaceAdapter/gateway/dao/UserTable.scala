@@ -8,11 +8,13 @@ import domain.model.User
 
 case class UserTable[P <: JdbcProfile]()(implicit val profile: P)
   extends ProfileComponent[P]
-    with BasicTable[P] {
+     with BasicTable[P] {
 
   import profile.api._
 
-  class Query extends TableQuery(new Table(_)) {}
+  class Query extends TableQuery(new Table(_)) {
+    def uniqueId(id: Long) = this.filter(_.id === id)
+  }
   lazy val query = new Query
 
   class Table(tag: Tag) extends SlickTable[User](tag, "user") {
@@ -23,7 +25,7 @@ case class UserTable[P <: JdbcProfile]()(implicit val profile: P)
 
     type TableElementTuple = (
       Option[Long], String, String
-      )
+    )
 
     def * = (id.?, firstName, lastName) .<> (
       (x: TableElementTuple) => User(
