@@ -28,12 +28,8 @@ case class UserTable[P <: JdbcProfile]()(implicit val profile: P)
     )
 
     def * = (id.?, firstName, lastName) .<> (
-      (x: TableElementTuple) => User(
-        x._1, x._2, x._3
-      ),
-      (x: User) => User.unapply(x).map {t => {
-        t
-      }}
+      (User.apply _).tupled,
+      (User.unapply _)
     )
   }
 }
